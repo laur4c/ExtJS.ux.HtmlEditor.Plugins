@@ -4,52 +4,56 @@
  * @extends Ext.util.Observable
  * <p>A plugin that creates a button on the HtmlEditor for making simple tables.</p>
  */
-Ext.ux.form.HtmlEditor.Table = Ext.extend(Ext.util.Observable, {
-    // Table language text
-    langTitle       : 'Insert Table',
-    langInsert      : 'Insert',
-    langCancel      : 'Cancel',
-    langRows        : 'Rows',
-    langColumns     : 'Columns',
-    langBorder      : 'Border',
-    langCellLabel   : 'Label Cells',
-    // private
+Ext.define('Ext.ux.form.htmleditor.Table', {
+    extend: 'Ext.util.Observable',
+    langTitle: 'Insert Table',
+    langInsert: 'Insert',
+    langCancel: 'Cancel',
+    langRows: 'Rows',
+    langColumns: 'Columns',
+    langBorder: 'Border',
+    langCellLabel: 'Label Cells',
+
     cmd: 'table',
     /**
      * @cfg {Boolean} showCellLocationText
      * Set true to display row and column informational text inside of newly created table cells.
      */
     showCellLocationText: true,
+
     /**
      * @cfg {String} cellLocationText
      * The string to display inside of newly created table cells.
      */
     cellLocationText: '{0}&nbsp;-&nbsp;{1}',
+
     /**
      * @cfg {Array} tableBorderOptions
      * A nested array of value/display options to present to the user for table border style. Defaults to a simple list of 5 varrying border types.
      */
     tableBorderOptions: [['none', 'None'], ['1px solid #000', 'Sold Thin'], ['2px solid #000', 'Solid Thick'], ['1px dashed #000', 'Dashed'], ['1px dotted #000', 'Dotted']],
-    // private
+
     init: function(cmp){
         this.cmp = cmp;
         this.cmp.on('render', this.onRender, this);
     },
-    // private
+
     onRender: function(){
-        var btn = this.cmp.getToolbar().addButton({
+        this.cmp.getToolbar().add({
             iconCls: 'x-edit-table',
             handler: function(){
                 if (!this.tableWindow){
-                    this.tableWindow = new Ext.Window({
+                    this.tableWindow = Ext.create('Ext.window.Window', {
                         title: this.langTitle,
-                        closeAction: 'hide',
                         width: 235,
                         items: [{
                             itemId: 'insert-table',
                             xtype: 'form',
+                            layout: 'anchor',
+                            defaults: {
+                                anchor: '100%'
+                            },
                             border: false,
-                            plain: true,
                             bodyStyle: 'padding: 10px;',
                             labelWidth: 65,
                             labelAlign: 'right',
@@ -57,16 +61,16 @@ Ext.ux.form.HtmlEditor.Table = Ext.extend(Ext.util.Observable, {
                                 xtype: 'numberfield',
                                 allowBlank: false,
                                 allowDecimals: false,
+                                minValue: 1,
                                 fieldLabel: this.langRows,
-                                name: 'row',
-                                width: 60
+                                name: 'row'
                             }, {
                                 xtype: 'numberfield',
                                 allowBlank: false,
                                 allowDecimals: false,
+                                minValue: 1,
                                 fieldLabel: this.langColumns,
-                                name: 'col',
-                                width: 60
+                                name: 'col'
                             }, {
                                 xtype: 'combo',
                                 fieldLabel: this.langBorder,
@@ -84,15 +88,15 @@ Ext.ux.form.HtmlEditor.Table = Ext.extend(Ext.util.Observable, {
                                 valueField: 'spec',
                                 anchor: '-15'
                             }, {
-                            	xtype: 'checkbox',
-                            	fieldLabel: this.langCellLabel,
-                            	checked: this.showCellLocationText,
-                            	listeners: {
-                            		check: function(){
-                            			this.showCellLocationText = !this.showCellLocationText;
-                            		},
-                            		scope: this
-                            	}
+                                xtype: 'checkbox',
+                                fieldLabel: this.langCellLabel,
+                                checked: this.showCellLocationText,
+                                listeners: {
+                                    check: function(){
+                                        this.showCellLocationText = !this.showCellLocationText;
+                                    },
+                                    scope: this
+                                }
                             }]
                         }],
                         buttons: [{
@@ -110,7 +114,7 @@ Ext.ux.form.HtmlEditor.Table = Ext.extend(Ext.util.Observable, {
                                         for (var row = 0; row < rowcol[0]; row++) {
                                             html += "<tr>";
                                             for (var col = 0; col < rowcol[1]; col++) {
-                                                html += "<td width='" + colwidth + "%' style='border: " + border + ";'>" + String.format(cellText, (row+1), String.fromCharCode(col+65)) + "</td>";
+                                                html += "<td width='" + colwidth + "%' style='border: " + border + ";'>" + Ext.String.format(cellText, (row+1), String.fromCharCode(col+65)) + "</td>";
                                             }
                                             html += "</tr>";
                                         }
@@ -118,10 +122,10 @@ Ext.ux.form.HtmlEditor.Table = Ext.extend(Ext.util.Observable, {
                                         this.cmp.insertAtCursor(html);
                                     }
                                     this.tableWindow.hide();
-                                }else{
+                                } else {
                                     if (!frm.findField('row').isValid()){
                                         frm.findField('row').getEl().frame();
-                                    }else if (!frm.findField('col').isValid()){
+                                    } else if (!frm.findField('col').isValid()){
                                         frm.findField('col').getEl().frame();
                                     }
                                 }
@@ -135,16 +139,16 @@ Ext.ux.form.HtmlEditor.Table = Ext.extend(Ext.util.Observable, {
                             scope: this
                         }]
                     });
-                
-                }else{
+
+                } else {
                     this.tableWindow.getEl().frame();
                 }
+
                 this.tableWindow.show();
             },
+
             scope: this,
-            tooltip: {
-                title: this.langTitle
-            },
+            tooltip: this.langTitle,
             overflowText: this.langTitle
         });
     }
