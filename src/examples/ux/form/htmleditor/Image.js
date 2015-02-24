@@ -4,34 +4,16 @@
  * @extends Ext.util.Observable
  */
 Ext.define('Ext.ux.form.htmleditor.Image', {
-    extend: 'Ext.util.Observable',
-    langTitle: 'Insert Image',
+    extend: 'Ext.AbstractPlugin',
+    alias: 'plugin.htmleditorimage',
+    lockableScope: 'both',
+    langTitle: 'Upload Image',
 
     basePath: undefined,
-    imageUploaderUrl: undefined,
 
     init: function(cmp) {
         this.cmp = cmp;
         this.cmp.on('render', this.onRender, this);
-        this.cmp.on('initialize', this.onInit, this, {delay: 100, single: true});
-    },
-
-    onEditorMouseUp: function(e) {
-        Ext.get(e.getTarget()).select('img').each(function(el){
-            var w = el.getAttribute('width'), h = el.getAttribute('height'), src = el.getAttribute('src')+' ';
-            src = src.replace(new RegExp(this.urlSizeVars[0]+'=[0-9]{1,5}([&| ])'), this.urlSizeVars[0]+'='+w+'$1');
-            src = src.replace(new RegExp(this.urlSizeVars[1]+'=[0-9]{1,5}([&| ])'), this.urlSizeVars[1]+'='+h+'$1');
-            el.set({src:src.replace(/\s+$/,"")});
-        }, this);
-
-    },
-
-    onInit: function() {
-        Ext.EventManager.on(this.cmp.getDoc(), {
-            'mouseup': this.onEditorMouseUp,
-            buffer: 100,
-            scope: this
-        });
     },
 
     onRender: function() {
@@ -49,6 +31,7 @@ Ext.define('Ext.ux.form.htmleditor.Image', {
         var win = Ext.create('Ext.window.Window', {
             title: me.langTitle,
             layout: 'fit',
+            width: 360,
             closable : true,
             items: [{
                 xtype: 'form',
@@ -56,13 +39,17 @@ Ext.define('Ext.ux.form.htmleditor.Image', {
                 bodyPadding: 5,
                 labelAlign: 'right',
                 defaults: {
+                    labelSeparator: '',
+                    labelAlign: 'top',
                     anchor: '100%'
                 },
                 items: [{
-                    fieldLabel: 'Upload Image',
+                    fieldLabel: 'Image',
                     xtype: 'fileuploadfield',
-                    emptyText: 'Select image...',
+                    emptyText: 'Select an image...',
+                    allowBlank: false,
                     name: 'image',
+                    itemId: 'image',
                     buttonText: '',
                     buttonConfig: {
                         iconCls: 'x-edit-upload'
@@ -73,34 +60,31 @@ Ext.define('Ext.ux.form.htmleditor.Image', {
                             node.value = v.replace("C:\\fakepath\\", "");
                         }
                     }
+                }, {
+                    xtype: 'displayfield',
+                    value: 'Maximun File Size: 50K'
                 }],
                 buttons: [{
                     text: 'Add',
                     handler: function(button) {
-                        var panel = button.up('form'),
-                            form = panel.getForm(),
-                            fileUploadField = form.findField('image');
-
-                        if(!form.isValid()) {
-                            return;
-                        }
-
-                        form.submit({
-                            url: me.imageUploaderUrl,
-                            method: 'GET',
-                            success: function(form, response) {
-                                var imageName = response.result.imageName;
-                                me.cmp.insertAtCursor('<img src="'+ me.basePath +'/'+ imageName + '">');
+                        var panel = button.up('form');
+                        me.addImage(panel, function(errors, imageName) {
+                            if (errors === undefined) {
+                                me.cmp.insertAtCursor('<img src="'+ me.basePath +'/'+ imageName + '" alt="'+ imageName +'" title="'+ imageName +'">');
                                 win.close();
-                            },
-                            failure: function() {
-                                win.close();
+
+                            } else {
+                                panel.getForm().markInvalid({image: errors});
+                                win.setLoading(false);
                             }
+
                         });
                     }
                 }]
             }]
         });
         win.show();
-    }
+    },
+
+    addImage: Ext.emptyFn
 });

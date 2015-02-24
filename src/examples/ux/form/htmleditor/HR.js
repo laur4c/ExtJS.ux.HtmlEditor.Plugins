@@ -5,7 +5,8 @@
  * <p>A plugin that creates a button on the HtmlEditor for inserting a horizontal rule.</p>
  */
 Ext.define('Ext.ux.form.htmleditor.HR', {
-    extend: 'Ext.util.Observable',
+    extend: 'Ext.AbstractPlugin',
+    alias: 'plugin.htmleditorhr',
 
     langTitle: 'Horizontal Rule',
     langHelp: 'Enter the width of the Rule in percentage<br/> followed by the % sign at the end, or to<br/> set a fixed width ommit the % symbol.',

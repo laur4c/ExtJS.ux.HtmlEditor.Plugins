@@ -5,7 +5,8 @@
  * <p>A plugin that creates a divider on the HtmlEditor. Used for separating additional buttons.</p>
  */
 Ext.define('Ext.ux.form.htmleditor.Divider', {
-    extend: 'Ext.util.Observable',
+    extend: 'Ext.AbstractPlugin',
+    alias: 'plugin.htmleditordivider',
 
     // private
     init: function(cmp){

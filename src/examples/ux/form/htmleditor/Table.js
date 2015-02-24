@@ -5,7 +5,9 @@
  * <p>A plugin that creates a button on the HtmlEditor for making simple tables.</p>
  */
 Ext.define('Ext.ux.form.htmleditor.Table', {
-    extend: 'Ext.util.Observable',
+    extend: 'Ext.AbstractPlugin',
+    alias: 'plugin.htmleditortable',
+
     langTitle: 'Insert Table',
     langInsert: 'Insert',
     langCancel: 'Cancel',
